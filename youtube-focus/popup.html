@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body {
+      width: 240px;
+      margin: 0;
+      padding: 14px 16px 16px;
+      font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: #0f0f0f;
+      color: #f1f1f1;
+    }
+    h1 { font-size: 14px; margin: 0 0 4px; }
+    p { font-size: 12px; color: #aaa; margin: 0 0 12px; line-height: 1.5; }
+    .row { display: flex; align-items: center; justify-content: space-between; }
+    .label { font-size: 13px; font-weight: 600; }
+    #status { font-size: 12px; color: #aaa; margin-top: 10px; min-height: 18px; }
+    #status.on { color: #3ea6ff; }
+    /* Toggle switch */
+    .switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+    .switch input { opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; position: absolute; z-index: 1; }
+    .track {
+      position: absolute; inset: 0; border-radius: 999px;
+      background: #3d3d3d; transition: background 0.15s;
+    }
+    .thumb {
+      position: absolute; top: 3px; left: 3px; width: 18px; height: 18px;
+      border-radius: 50%; background: #fff; transition: transform 0.15s;
+    }
+    .switch input:checked ~ .track { background: #3ea6ff; }
+    .switch input:checked ~ .thumb { transform: translateX(20px); }
+    .switch input:disabled ~ .track { opacity: 0.4; }
+    .switch input:disabled { cursor: default; }
+  </style>
+</head>
+<body>
+  <h1>YouTube Focus</h1>
+  <p>Black out everything except the video. Watch pages only.</p>
+  <div class="row">
+    <span class="label">Focus mode</span>
+    <label class="switch">
+      <input type="checkbox" id="toggle" />
+      <span class="track"></span>
+      <span class="thumb"></span>
+    </label>
+  </div>
+  <div id="status"></div>
+  <script src="popup.js"></script>
+</body>
+</html>

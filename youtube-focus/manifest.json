@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube Focus - Video Only",
+  "version": "1.0.0",
+  "description": "Blacks out all of YouTube except the playing video. Toggle from the toolbar. Watch pages only.",
+  "permissions": ["storage", "activeTab"],
+  "host_permissions": ["https://www.youtube.com/*", "https://youtube.com/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "YouTube Focus"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/*", "https://youtube.com/*"],
+      "js": ["content.js"],
+      "css": ["focus.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}
