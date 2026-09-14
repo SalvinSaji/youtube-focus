@@ -11,8 +11,9 @@
   // everything via visibility except the .yt-focus-player branch.
 
   let enabled = false;
+  let lastOn = false;
 
-  const PLAYER_SELECTORS = ["#movie_player", ".html5-video-player", "ytd-player"];
+  // Player lookup order: innermost node first (see getPlayer).
   const VIDEO_SELECTOR = "video.html5-main-video, #movie_player video, video";
 
   function isWatchPage() {
@@ -24,8 +25,16 @@
     return document.querySelector(VIDEO_SELECTOR);
   }
 
-  function getPlayers() {
-    return document.querySelectorAll(PLAYER_SELECTORS.join(", "));
+  function getPlayer() {
+    // Prefer the innermost player node. (Note: #movie_player itself carries
+    // the .html5-video-player class, so matching several selectors would
+    // fix multiple nested ancestors and disturb YT's layout observers
+    // more than necessary.)
+    return (
+      document.querySelector("#movie_player") ||
+      document.querySelector(".html5-video-player") ||
+      document.querySelector("ytd-player")
+    );
   }
 
   function hasSelectedVideo() {
@@ -57,8 +66,32 @@
     const on = shouldApply();
     removeLegacyBackdrop();
     document.documentElement.classList.toggle("yt-focus-on", on);
-    getPlayers().forEach((p) => p.classList.toggle("yt-focus-player", on));
+    const player = getPlayer();
+    if (player) player.classList.toggle("yt-focus-player", on);
+    // Exiting focus mode: our CSS is gone, but YouTube sized/measured the
+    // player while it was ripped out of flow (position:fixed), and the
+    // window never resized so YT never re-ran its layout pass. Force a
+    // reflow + synthetic resizes (YT debounces them) so the video snaps
+    // back to its correct position/size.
+    if (lastOn && !on) nudgeYouTubeLayout();
+    lastOn = on;
     return on;
+  }
+
+  function nudgeYouTubeLayout() {
+    const fireResize = () => {
+      try {
+        // Synchronous reflow first so measurements are fresh...
+        void document.body.offsetHeight;
+        // ...then tell YouTube's responsive code to remeasure.
+        window.dispatchEvent(new Event("resize"));
+      } catch (e) {
+        // Never break the host page.
+      }
+    };
+    fireResize();
+    requestAnimationFrame(fireResize);
+    setTimeout(fireResize, 250);
   }
 
   // Re-check after DOM churn (YouTube is an SPA: the <video> node is
